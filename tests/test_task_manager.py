@@ -1,5 +1,4 @@
 import unittest
-from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
 from task_manager import Task, TaskManager
@@ -10,12 +9,42 @@ class TestTaskManager(unittest.TestCase):
 	def setUp(self):
 		self.storage = MagicMock()
 		self.manager = TaskManager(self.storage)
+		# self.data_file = "../test.json"
+		#
+		# try:
+		# 	with open(self.data_file, "r") as f:
+		# 		# Case where the file exists but there is no data.
+		# 		if f.read(1) == '':
+		# 			raise FileNotFoundError
+		# 		else:
+		# 			self.storage.load_tasks(f)
+		# except FileNotFoundError:
+		# 	with open(self.data_file, "w") as f:
+		# 		f.write("[]")
 
-	def test_add_task(self):
-		task = self.manager.add_task("Test Task", "Description")
+	def test_add_new_task(self):
+		response = self.manager.add_task("Test Task", "Description")
 		self.storage.save_task.assert_called_once()
-		self.assertEqual(task.title, "Test Task")
-		self.assertEqual(task.description, "Description")
+		self.assertTrue(response)
+
+		# try:
+		# 	with open(self.data_file, "w") as f:
+		# 		self.storage.dump(f)
+		# except FileNotFoundError:
+		# 	pass
+
+	def test_add_duplicate_task(self):
+		response = self.manager.add_task("Test Task", "Description")
+		self.assertTrue(response)
+
+		response = self.manager.add_task("Test Task", "Description")
+		self.assertFalse(response)
+
+		# try:
+		# 	with open(self.data_file, "w") as f:
+		# 		self.storage.dump(f)
+		# except FileNotFoundError:
+		# 	pass
 
 	def test_list_tasks_exclude_completed(self):
 		tasks = [
