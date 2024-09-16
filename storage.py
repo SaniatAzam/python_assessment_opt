@@ -16,8 +16,8 @@ class Storage:
 	"""
 
 	def __init__(self):
-		""" Initializes a new storage with an empty list of tasks. """
-		self.tasks: list[Task] = []
+		""" Initializes a new storage with an empty dictionary of tasks. """
+		self.tasks: dict[str, Task] = {}
 
 	def save_task(self, task: Task) -> bool:
 		"""
@@ -32,14 +32,8 @@ class Storage:
 			- False: bool
 				if there is an existing task with matching titles
 		"""
-		already_exists = False
-		for _, t in enumerate(self.tasks):
-			if t.title == task.title:
-				already_exists = True
-				break
-
-		if not already_exists:
-			self.tasks.append(task)
+		if task.title not in self.tasks.keys():
+			self.tasks[task.title] = task
 			return True
 		else:
 			return False
@@ -55,10 +49,7 @@ class Storage:
 		Returns:
 			- None
 		"""
-		for i, task in enumerate(self.tasks):
-			if task.title == updated_task.title:
-				self.tasks[i] = updated_task
-				break
+		self.tasks[updated_task.title] = updated_task
 
 	def load_tasks(self, f) -> None:
 		"""
@@ -96,7 +87,7 @@ class Storage:
 		"""
 		serializable_tasks_list = []
 		try:
-			for t in self.tasks:
+			for t in self.tasks.values():
 				task = {
 					"title": t.title,
 					"description": t.description,
@@ -121,9 +112,8 @@ class Storage:
 			- Task | None
 				Task object if found else None
 		"""
-		for task in self.tasks:
-			if task.title == title:
-				return task
+		if title in self.tasks.keys():
+			return self.tasks[title]
 		return None
 
 	def get_all_tasks(self) -> list[Task]:
@@ -132,7 +122,7 @@ class Storage:
 		Returns:
 			list[Tasks]
 		"""
-		return list(self.tasks)
+		return list(self.tasks.values())
 
 	def clear_all_tasks(self):
 		"""Clears all task from storage."""
