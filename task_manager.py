@@ -80,18 +80,26 @@ class TaskManager:
             total_completion_times += timedelta(hours=h, minutes=m, seconds=s)
 
         total_completion_seconds = total_completion_times.total_seconds()
-        avg_completion_seconds = total_completion_seconds / completed_tasks
-        avg_hours = int(avg_completion_seconds // 3600)
-        avg_minutes = int((avg_completion_seconds % 3600) // 60)
-        avg_seconds = int(avg_completion_seconds % 60)
 
-        avg_completion_time = f"{avg_hours:02} hours: {avg_minutes:02} minutes, {avg_seconds:02} seconds"
+        if total_completion_seconds != 0:
+            avg_completion_seconds = total_completion_seconds / completed_tasks
+            avg_hours = int(avg_completion_seconds // 3600)
+            avg_minutes = int((avg_completion_seconds % 3600) // 60)
+            avg_seconds = int(avg_completion_seconds % 60)
 
-        report = {
-            "total": total_tasks,
-            "completed": completed_tasks,
-            "pending": total_tasks - completed_tasks,
-            "average completion time": avg_completion_time,
-        }
+            avg_completion_time = f"{avg_hours:02} hours - {avg_minutes:02} minutes - {avg_seconds:02} seconds"
+
+            report = {
+                "total": total_tasks,
+                "completed": completed_tasks,
+                "pending": total_tasks - completed_tasks,
+                "average completion time": avg_completion_time,
+            }
+        else:
+            report = {
+                "total": total_tasks,
+                "completed": completed_tasks,
+                "pending": total_tasks - completed_tasks,
+            }
 
         return report

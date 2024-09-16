@@ -137,10 +137,6 @@ class Storage:
 	def clear_all_tasks(self):
 		"""Clears all task from storage."""
 		self.tasks = []
-		# try:
-		# 	with open(DATA_FILE, "w") as f:
-		# 		f.write("")
-		# except EOFError:
-		# 	pass
+
 
 
