@@ -6,22 +6,23 @@ from datetime import datetime, timedelta
 
 
 class TestTaskManager(unittest.TestCase):
-	def setUp(self):
+	def setUp(self) -> None:
 		self.storage = MagicMock()
 		self.manager = TaskManager(self.storage)
 		self.test_date = datetime.fromisoformat("2024-09-15 17:26:07.461444")
 
-	def test_add_new_task_successfully(self):
+
+	def test_add_new_task_successfully(self) -> None:
 		self.storage.save_task.return_value = True
 		response = self.manager.add_task("Test Task", "Description")
 		self.assertTrue(response)
 
-	def test_add_new_task_unsuccessfully(self):
+	def test_add_new_task_unsuccessfully(self) -> None:
 		self.storage.save_task.return_value = False
 		response = self.manager.add_task("Test Task", "Description")
 		self.assertFalse(response)
 
-	def test_list_tasks_exclude_completed(self):
+	def test_list_tasks_exclude_completed(self) -> None:
 		tasks = [
 			Task("Task 1", "Description 1"),
 			Task("Task 2", "Description 2"),
@@ -33,7 +34,7 @@ class TestTaskManager(unittest.TestCase):
 		self.assertEqual(len(result), 2)
 		self.assertNotIn(tasks[1], result)
 
-	def test_generate_report_no_completed_tasks(self):
+	def test_generate_report_no_completed_tasks(self) -> None:
 		tasks = [
 			Task("Task 1", "Description 1"),
 			Task("Task 2", "Description 2"),
@@ -45,7 +46,7 @@ class TestTaskManager(unittest.TestCase):
 		self.assertEqual(report["completed"], 0)
 		self.assertEqual(report["pending"], 3)
 
-	def test_generate_report_one_completed_task(self):
+	def test_generate_report_one_completed_task(self) -> None:
 		tasks = [
 			Task("Task 1", "Description 1", True, self.test_date, "2:03:12.0"),
 			Task("Task 2", "Description 2"),
@@ -59,7 +60,7 @@ class TestTaskManager(unittest.TestCase):
 		self.assertEqual(report["pending"], 2)
 		self.assertEqual(report["average completion time"], expected_act)
 
-	def test_generate_report_average_completion_time(self):
+	def test_generate_report_average_completion_time(self) -> None:
 		tasks = [
 			Task("Task 1", "Description 1", True, self.test_date, "1:10:20.0"),
 			Task("Task 2", "Description 2", True, self.test_date, "2:12:15.1"),
@@ -87,17 +88,17 @@ class TestTaskManager(unittest.TestCase):
 		self.assertEqual(report["pending"], 1)
 		self.assertEqual(report["average completion time"], expected_act)
 
-	def test_complete_task(self):
+	def test_complete_task(self) -> None:
 		self.storage.get_task.return_value = Task("Task 1", "Description 1", created_at=self.test_date)
 		result = self.manager.complete_task("Task 1")
 		self.assertEqual(result, (True, 1))
 
-	def test_complete_nonexistent_task(self):
+	def test_complete_nonexistent_task(self) -> None:
 		self.storage.get_task.return_value = None
 		result = self.manager.complete_task("Non-existent Task")
 		self.assertEqual(result, (False, -1))
 
-	def test_complete_completed_task(self):
+	def test_complete_completed_task(self) -> None:
 		test_task = Task("Completed Task", "Description 1", True, self.test_date, "1:10:20.0")
 		self.storage.get_task.return_value = test_task
 		result = self.manager.complete_task("Completed Task")

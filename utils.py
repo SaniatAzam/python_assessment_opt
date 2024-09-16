@@ -18,9 +18,19 @@ def create_data_file(data_file: str, store: Storage) -> None:
         - None
     """
 
+    file_name_tokenized = data_file.split(".")
+    length_of_tokens = len(file_name_tokenized)
+    extension = file_name_tokenized[length_of_tokens - 1]
+
+    if extension != "json":
+        raise ValueError(f"*** The file needs to have .json extension. ***"
+                         f"\n Currently you are using a .{extension} extension, which is not supported. "
+                         f"\n Please rename it to {'.'.join(file_name_tokenized[0:length_of_tokens-1])}.json")
+
     try:
         with open(data_file, "r") as f:
             # Case where the file exists but there is no data.
+            # Just going to treat as if it doesn't exist
             if f.read(1) == '':
                 raise FileNotFoundError
             else:
