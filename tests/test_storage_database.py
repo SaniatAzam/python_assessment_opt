@@ -5,6 +5,8 @@ from task import Task
 from utils import create_data_file, update_data_file
 import os
 from datetime import datetime
+import json
+
 
 # Due to the symbiotic relationship between the persistent data and the storage class,
 # I decided to keep the tests in one test case.
@@ -19,7 +21,7 @@ class TestStorageDatabase(unittest.TestCase):
         self.current_directory = os.getcwd()
         current_directory_tokens = self.current_directory.split("/")
         cdt_length = len(current_directory_tokens)
-        last_directory = current_directory_tokens[cdt_length-1]
+        last_directory = current_directory_tokens[cdt_length - 1]
 
         self.test_file_directory = self.current_directory
         if last_directory != "tests":
@@ -61,6 +63,51 @@ class TestStorageDatabase(unittest.TestCase):
         self.assertFalse(self.storage.save_task(task_2))
         task_list = self.storage.tasks.values()
         self.assertNotIn(task_2, task_list)
+
+    def test_storage_get_task(self):
+        task_1 = Task("Get Task 1", "Get Task 1 Desc", False, datetime.fromisoformat("2024-09-16T17:19:22.056316"),
+                      None)
+        task_2 = Task("Get Task 2", "Get Task 2 Desc", True, datetime.fromisoformat("2024-06-10T17:19:22.056316"),
+                      "0:03:12.057624")
+        self.storage.tasks = {
+            task_1.title: task_1,
+            task_2.title: task_2
+        }
+
+        fetched_task = self.storage.get_task(task_1.title)
+
+        self.assertEqual(fetched_task, task_1)
+
+    def test_storage_get_nonexistent_task(self):
+        task_1 = Task("Get Task 1", "Get Task 1 Desc", False, datetime.fromisoformat("2024-09-16T17:19:22.056316"),
+                      None)
+        self.storage.tasks = {
+            task_1.title: task_1,
+        }
+
+        fetched_task = self.storage.get_task("Ghost Task")
+
+        self.assertIsNone(fetched_task)
+
+    def test_storage_get_all_tasks(self):
+        task_1 = Task("Get Task 1", "Get Task 1 Desc", False, datetime.fromisoformat("2024-09-16T17:19:22.056316"),
+                      None)
+        task_2 = Task("Get Task 2", "Get Task 2 Desc", True, datetime.fromisoformat("2024-06-10T17:19:22.056316"),
+                      "0:03:12.057624")
+
+        task_3 = Task("Get Task 3", "Get Task 3 Desc")
+
+        self.storage.tasks = {
+            task_1.title: task_1,
+            task_2.title: task_2,
+            task_3.title: task_3
+        }
+
+        fetched_tasks_list = self.storage.get_all_tasks()
+        direct_tasks_list = self.storage.tasks.values()
+
+        for task in direct_tasks_list:
+            self.assertIn(task, fetched_tasks_list)
 
     def test_storage_update_task(self):
         # Create a task
@@ -122,6 +169,7 @@ class TestStorageDatabase(unittest.TestCase):
         self.assertIsNone(completion_time_found)
         self.assertIsInstance(completion_time_found, str | None)
 
+
     # More of a proof by induction, where we saw that it works for one task data,
     # so if works for 2 -- it should work for multiple
     def test_storage_load_multiple_tasks_from_file(self):
@@ -171,6 +219,49 @@ class TestStorageDatabase(unittest.TestCase):
         completion_time_found_2 = task_found_2.completion_time
         self.assertIsNone(completion_time_found_1)
         self.assertEqual(completion_time_found_2, completion_time_expected_2)
+
+    def test_storage_load_task_from_file_containing_bad_data(self):
+        test_file_name = os.path.join(self.test_file_directory, 'load_test_3.json')
+
+        # We are going to try and load the data to storage, but it should throw a Value Error for having bad data
+        with open(test_file_name, "r") as f:
+            with self.assertRaises(ValueError):
+                self.storage.load_tasks(f)
+
+    # Gotta add test for dumping
+    def test_storage_dump_to_file(self):
+        test_file_name = os.path.join(self.test_file_directory, 'dump_test_1.json')
+        task_1 = Task("Dump Task 1", "Dump Task 1 Desc", False, datetime.fromisoformat("2024-09-16T17:19:22.056316"),
+                      None)
+        task_2 = Task("Dump Task 2", "Dump Task 2 Desc", True, datetime.fromisoformat("2024-06-10T17:19:22.056316"),
+                      "0:03:12.057624")
+        self.storage.tasks = {
+            task_1.title: task_1,
+            task_2.title: task_2
+        }
+
+        # Dumping it to dump_test_1.json
+        with open(test_file_name, "w") as f:
+            self.storage.dump(f)
+
+        # The files dump_test_1.json should have identical data to load_test_2.json
+        # Load data from both the files
+
+        dumped_file_data = None
+        with open(test_file_name, "r") as f_dumped:
+            dumped_file_data = json.load(f_dumped)
+
+        gold_file_data = None
+        with open(test_file_name, "r") as f_gold:
+            gold_file_data = json.load(f_gold)
+
+        self.assertEqual(dumped_file_data, gold_file_data)
+
+        # We are going to reset dump_test_1.json to be empty now.
+        # Optionally you can comment this out to check if the data is actually being
+        # dumped to the dump test file.
+        with open(test_file_name, "w") as f_dumped:
+            pass
 
 
 if __name__ == "__main__":

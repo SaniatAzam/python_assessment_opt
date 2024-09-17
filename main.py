@@ -7,7 +7,7 @@ from utils import create_data_file, update_data_file
 # The application currently only supports JSON files
 # Changing the extension to anything else will safely throw an error message
 
-DATA_FILE = "./tasks2.json"
+DATA_FILE = "./tasks.json"
 
 
 def main():

@@ -7,6 +7,9 @@ class TaskManager:
     """
     A class to manage and manipulate tasks along with handling a storage.
 
+    Assumption:
+        - A user can not add a task that has been completed already.
+
     Attributes:
         - storage: Storage
             the main Storage object the class manages

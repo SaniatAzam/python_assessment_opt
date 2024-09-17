@@ -34,7 +34,10 @@ def create_data_file(data_file: str, store: Storage) -> None:
             if f.read(1) == '':
                 raise FileNotFoundError
             else:
-                store.load_tasks(f)
+                try:
+                    store.load_tasks(f)
+                except ValueError as e:
+                    raise e
     except FileNotFoundError:
         with open(data_file, "w") as f:
             f.write("[]")
