@@ -2,6 +2,10 @@
 
 This is a simple command-line (CLI) task management system implemented in Python.
 
+# **Submission Notes**:
+1. Please check the updated run-tests instructions.
+2. Code linted with [Black](https://black.vercel.app/).
+
 ## Functional Requirements
 
 The application should allow users to do the following:
@@ -36,7 +40,7 @@ The application should allow users to do the following:
 
 ## Running Tests
 
-To run all the unit tests, use the following command:
+To run all the unit tests please make sure you're either in the **py_assignment** or **tests** folder. Then use the following command:
 
 ```
 python -m unittest discover tests

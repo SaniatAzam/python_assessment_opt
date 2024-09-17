@@ -20,6 +20,23 @@ class TaskManager:
         self.storage = storage
 
     def add_task(self, title: str, description: str):
+        """
+        Adds a new task to the storage with a given title and description.
+        Returns the True if task was added successfully, and vice versa.
+
+        Parameters:
+            - title: str
+                the title of the new task
+            - description: str
+                the description of the new task
+
+        Returns:
+            -True: bool
+                if the task could be added to the storage
+            -False: bool
+                if the task could not be added to the storage
+
+        """
         task = Task(title, description)
         saved = self.storage.save_task(task)
         return saved

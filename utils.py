@@ -44,6 +44,18 @@ def create_data_file(data_file: str, store: Storage) -> None:
 
 
 def update_data_file(data_file: str, store: Storage) -> None:
+    """
+    Updates the specified data file with the tasks in storage's task dict
+
+    Parameters:
+        - data_file: str
+            file path
+        - store: Storage
+            the storage object
+
+    Returns:
+        None
+    """
     try:
         with open(data_file, "w") as f:
             store.dump(f)
