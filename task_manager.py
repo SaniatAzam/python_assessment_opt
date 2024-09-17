@@ -80,12 +80,28 @@ class TaskManager:
         return False, -1
 
     def list_tasks(self, include_completed: bool = False) -> list[Task] | None:
+        """
+        Retrieves all the tasks and returns either that or just the subset of the pending tasks.
+
+        Paremeters:
+            include_completed: bool = False (default)
+                the flag that checks if we want all or just the pending tasks
+
+        Returns:
+            A list of Tasks
+        """
         if include_completed:
             return self.storage.get_all_tasks()
         else:
             return [task for task in self.storage.get_all_tasks() if not task.completed]
 
-    def generate_report(self):
+    def generate_report(self) -> dict[str, (int | str)]:
+        """
+        Generates a report containing the total number of tasks, the number of completed tasks and the number of
+        pending tasks. Additionally, if there is one or more completed tasks the report also includes the
+        average completion time.
+        """
+
         tasks = self.storage.get_all_tasks()
         total_tasks = len(tasks)
         completed_tasks = len([task for task in tasks if task.completed])
@@ -93,15 +109,15 @@ class TaskManager:
             task.completion_time for task in tasks if task.completed
         ]
 
-        total_completion_times = timedelta()
+        if completed_tasks > 0:
+            total_completion_times = timedelta()
 
-        for completion_time in completion_times_list:
-            h, m, s = map(float, completion_time.split(":"))
-            total_completion_times += timedelta(hours=h, minutes=m, seconds=s)
+            for completion_time in completion_times_list:
+                h, m, s = map(float, completion_time.split(":"))
+                total_completion_times += timedelta(hours=h, minutes=m, seconds=s)
 
-        total_completion_seconds = total_completion_times.total_seconds()
+            total_completion_seconds = total_completion_times.total_seconds()
 
-        if total_completion_seconds != 0:
             avg_completion_seconds = total_completion_seconds / completed_tasks
             avg_hours = int(avg_completion_seconds // 3600)
             avg_minutes = int((avg_completion_seconds % 3600) // 60)
